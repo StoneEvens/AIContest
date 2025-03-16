@@ -9,11 +9,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
         btnText = findViewById(R.id.btnText);
 
         // create an object textToSpeech and adding features into it
+        //Set<String> strSet = new HashSet<>();
+        //strSet.add("male");
+        //Voice voice = new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),400,200,true,strSet);
         textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
@@ -43,7 +50,15 @@ public class MainActivity extends AppCompatActivity {
                 // if No error is found then only it will run
                 if(i!=TextToSpeech.ERROR){
                     // To Choose language of speech
-                    textToSpeech.setLanguage(Locale.UK);
+                    textToSpeech.setLanguage(Locale.US);
+
+                    Set<Voice> voices = textToSpeech.getVoices();
+                    List<Voice> voiceList = new ArrayList<>(voices);
+                    Voice selectedVoice = voiceList.get(130);
+
+                    textToSpeech.setVoice(selectedVoice);
+                    textToSpeech.setPitch(1f);
+                    textToSpeech.setSpeechRate(1.3f);
                 }
             }
         });
