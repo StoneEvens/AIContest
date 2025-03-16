@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,15 +51,15 @@ public class MainActivity extends AppCompatActivity {
                 // if No error is found then only it will run
                 if(i!=TextToSpeech.ERROR){
                     // To Choose language of speech
-                    textToSpeech.setLanguage(Locale.US);
+                    textToSpeech.setLanguage(Locale.TRADITIONAL_CHINESE);
 
                     Set<Voice> voices = textToSpeech.getVoices();
                     List<Voice> voiceList = new ArrayList<>(voices);
-                    Voice selectedVoice = voiceList.get(130);
+                    Voice selectedVoice = voiceList.get(399);
 
                     textToSpeech.setVoice(selectedVoice);
                     textToSpeech.setPitch(1f);
-                    textToSpeech.setSpeechRate(1.3f);
+                    textToSpeech.setSpeechRate(1.25f);
                 }
             }
         });
