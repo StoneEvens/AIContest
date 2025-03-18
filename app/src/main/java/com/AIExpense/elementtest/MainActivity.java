@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -88,20 +90,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //textToSpeech.speak(Text.getText().toString(),TextToSpeech.QUEUE_FLUSH,null);
-                //GoogleCredentials credential = GoogleCredentials.fromStream();
-                //TextToSpeechSettings settings = TextToSpeechSettings.newBuilder().setCredentialsProvider(FixedCredentialsProvider.create());
-                try (TextToSpeechClient ttsClient = TextToSpeechClient.create()) {
-                    SynthesisInput input = SynthesisInput.newBuilder().setText("Hello, world!").build();
+                try {
+                    InputStream credientialsStream = getResources().openRawResource(R.raw.Credentials);
+                    GoogleCredentials credential = GoogleCredentials.fromStream(credientialsStream);
+                    TextToSpeechSettings settings = TextToSpeechSettings.newBuilder().setCredentialsProvider(FixedCredentialsProvider.create(credential)).build();
 
-                    VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("cmn-CN").setName("cmn-CN-Wavenet-A").build();
+                    try (TextToSpeechClient ttsClient = TextToSpeechClient.create(settings)) {
+                        SynthesisInput input = SynthesisInput.newBuilder().setText("Hello, world!").build();
 
-                    AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.MP3).build();
+                        VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("cmn-CN").setName("cmn-CN-Wavenet-A").build();
 
-                    SynthesizeSpeechResponse response = ttsClient.synthesizeSpeech(input, voice, audioConfig);
+                        AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.MP3).build();
 
-                    ByteString audioContents = response.getAudioContent();
+                        SynthesizeSpeechResponse response = ttsClient.synthesizeSpeech(input, voice, audioConfig);
 
-                    playAudio(audioContents.toByteArray());
+                        ByteString audioContents = response.getAudioContent();
+
+                        playAudio(audioContents.toByteArray());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
