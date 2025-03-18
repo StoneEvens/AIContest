@@ -18,6 +18,7 @@ import android.widget.EditText;
 import java.io.IOException;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.texttospeech.v1.TextToSpeechClient;
 import com.google.cloud.texttospeech.v1.SynthesisInput;
 import com.google.cloud.texttospeech.v1.TextToSpeechSettings;
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //textToSpeech.speak(Text.getText().toString(),TextToSpeech.QUEUE_FLUSH,null);
+                //GoogleCredentials credential = GoogleCredentials.fromStream();
                 //TextToSpeechSettings settings = TextToSpeechSettings.newBuilder().setCredentialsProvider(FixedCredentialsProvider.create());
                 try (TextToSpeechClient ttsClient = TextToSpeechClient.create()) {
                     SynthesisInput input = SynthesisInput.newBuilder().setText("Hello, world!").build();
