@@ -1,11 +1,8 @@
 package com.AIExpense.elementtest;
 
-import android.media.MediaDataSource;
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -19,8 +16,11 @@ public class AITextToSpeech extends AsyncTask<String, Void, byte[]> {
     private static final String apiUrl = "https://api.openai.com/v1/audio/speech";
     private static final String modelName = "tts-1";
     private static final String voice = "coral";
-    private static MediaPlayer mediaPlayer;
+    private Speaker speaker;
 
+    public void setSpeaker(Speaker speaker) {
+        this.speaker = speaker;
+    }
 
     @Override
     protected byte[] doInBackground(String... strings) {
@@ -53,62 +53,10 @@ public class AITextToSpeech extends AsyncTask<String, Void, byte[]> {
     @Override
     protected void onPostExecute(byte[] audioData) {
         if (audioData != null) {
-            playAudio(audioData);
+            Log.e("Debug", "Audio Generated Finished");
+            speaker.addAudio(audioData);
         } else {
             Log.e("Debug", "Audio data is null");
-        }
-    }
-
-    private void playAudio(byte[] audioData) {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-
-        try {
-            mediaPlayer = new MediaPlayer();
-
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(audioData);
-            mediaPlayer.setDataSource(new ByteArrayMediaDataSource(audioData));
-
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-
-            mediaPlayer.setOnCompletionListener(mp -> {
-                mp.release();
-                mediaPlayer = null;
-            });
-        } catch (IOException e) {
-            Log.e("Debug", "Error playing audio", e);
-        }
-    }
-
-    private static class ByteArrayMediaDataSource extends MediaDataSource {
-        private final byte[] data;
-
-        public ByteArrayMediaDataSource(byte[] data) {
-            this.data = data;
-        }
-
-        @Override
-        public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
-            if (position >= data.length) {
-                return -1; // End of stream
-            }
-            int bytesToRead = (int) Math.min(size, data.length - position);
-            System.arraycopy(data, (int) position, buffer, offset, bytesToRead);
-            return bytesToRead;
-        }
-
-        @Override
-        public long getSize() throws IOException {
-            return data.length;
-        }
-
-        @Override
-        public void close() throws IOException {
-            // No resources to close for ByteArray
         }
     }
 }

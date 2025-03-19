@@ -1,5 +1,6 @@
 package com.AIExpense.elementtest;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -12,9 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -23,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
     EditText Text;
     Button btnText;
+    MediaPlayer mediaPlayer;
+    Speaker speaker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
         Text = findViewById(R.id.Text);
         btnText = findViewById(R.id.btnText);
+        mediaPlayer = new MediaPlayer();
+        speaker = new Speaker();
 
         // create an object textToSpeech and adding features into it
         /*
@@ -86,9 +88,16 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             String response = new AIResponse().execute(userInput).get();
 
-                            new AITextToSpeech().execute(response);
+                            String[] sentences = response.split("。");
+                            Queue<String> sentenceQueue = new LinkedList<>();
+
+                            for (String sentence: sentences) {
+                                AITextToSpeech textToSpeech = new AITextToSpeech();
+                                textToSpeech.setSpeaker(speaker);
+                                textToSpeech.execute(sentence);
+                            }
                         } catch (ExecutionException | InterruptedException e) {
-                            throw new RuntimeException(e);
+                            e.printStackTrace();
                         }
                     }
                 }).start();
