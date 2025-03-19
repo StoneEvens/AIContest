@@ -46,5 +46,5 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    implementation (libs.google.cloud.texttospeech)
+    implementation(libs.okhttp)
 }
