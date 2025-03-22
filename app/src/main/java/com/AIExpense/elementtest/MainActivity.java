@@ -1,6 +1,7 @@
 package com.AIExpense.elementtest;
 
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         btnText = findViewById(R.id.btnText);
         mediaPlayer = new MediaPlayer();
         speaker = new Speaker();
+
+        OpenAITest openAITest = new OpenAITest();
 
         // create an object textToSpeech and adding features into it
         /*
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         btnText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /*
                 String userInput = Text.getText().toString();
                 Text.setText("");
 
@@ -101,6 +105,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }).start();
+
+                 */
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    openAITest.sendMessage(Text.getText().toString());
+                }
             }
         });
     }

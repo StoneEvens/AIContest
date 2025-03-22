@@ -16,7 +16,7 @@ import okhttp3.Response;
 public class AIResponse extends AsyncTask<String, Void, String> {
     private static final String apiKey = "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";
     private static final String apiUrl = "https://api.openai.com/v1/chat/completions";
-    private static final String LLMName = "gpt-3.5-turbo";
+    private static final String LLMName = "gpt-4o";
 
     private static String output = "";
 
@@ -46,6 +46,8 @@ public class AIResponse extends AsyncTask<String, Void, String> {
             if (!response.isSuccessful()) {
                 Log.e("Debug", "API Error: " + response.code());
             }
+
+            Log.e("Debug", response.body().string());
 
             StringBuilder stringBuilder = new StringBuilder();
                 String line;

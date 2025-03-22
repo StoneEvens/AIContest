@@ -47,4 +47,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation(libs.okhttp)
+    implementation(libs.openai.java)
 }
