@@ -10,14 +10,15 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class Speaker {
-    MediaPlayer mediaPlayer;
-    Queue<byte[]> audioQueue;
-    boolean available;
+    volatile static MediaPlayer mediaPlayer;
+    volatile static Queue<byte[]> audioQueue;
+    boolean available, playing;
 
     public Speaker() {
         mediaPlayer = new MediaPlayer();
         audioQueue = new LinkedList<>();
         available = true;
+        playing = false;
 
         new Thread(new audioRunnable()).start();
     }
@@ -34,21 +35,31 @@ public class Speaker {
         @Override
         public void run() {
             while (available) {
-                if (!(audioQueue.isEmpty() || mediaPlayer.isPlaying())) {
+                if (!audioQueue.isEmpty() && !playing) {
                     byte[] data = audioQueue.poll();
 
-                    try {
-                        mediaPlayer = new MediaPlayer();
+                    if (data != null) {
+                        try {
+                            playing = true;
+                            mediaPlayer.setDataSource(new ByteArrayMediaDataSource(data));
 
-                        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-                        mediaPlayer.setDataSource(new ByteArrayMediaDataSource(data));
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
 
-                        mediaPlayer.prepare();
-                        mediaPlayer.start();
+                            Log.e("Debug", "Finished");
 
-                        mediaPlayer.setOnCompletionListener(MediaPlayer::release);
-                    } catch (IOException e) {
-                        Log.e("Debug", "Error playing audio", e);
+                            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                @Override
+                                public void onCompletion(MediaPlayer mp) {
+                                    mediaPlayer.release();
+                                    mediaPlayer = new MediaPlayer();
+
+                                    playing = false;
+                                }
+                            });
+                        } catch (IOException e) {
+                            Log.e("Debug", "Error playing audio", e);
+                        }
                     }
                 }
             }

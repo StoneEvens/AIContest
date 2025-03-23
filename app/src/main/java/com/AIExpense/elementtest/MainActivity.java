@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnText;
     MediaPlayer mediaPlayer;
     Speaker speaker;
+    AssistantNoAsyncTest assistantNoAsyncTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,84 +43,38 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         speaker = new Speaker();
 
-        //OpenAITest openAITest = new OpenAITest();
-        //ChatSession session = new ChatSession();
-        AssistantNoAsyncTest assistantNoAsyncTest = new AssistantNoAsyncTest();
-
-        // create an object textToSpeech and adding features into it
-        /*
-        Set<String> strSet = new HashSet<>();
-        strSet.add("male");
-        //Voice voice = new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),400,200,true,strSet);
-        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int i) {
-
-                // if No error is found then only it will run
-                if(i!=TextToSpeech.ERROR){
-                    // To Choose language of speech
-                    textToSpeech.setLanguage(Locale.TRADITIONAL_CHINESE);
-
-
-                    Set<Voice> voices = textToSpeech.getVoices();
-                    List<Voice> voiceList = new ArrayList<>(voices);
-                    Voice selectedVoice = voiceList.get(400);
-
-                    int count = 0;
-                    for (Voice voice: voiceList) {
-                        Log.e("Debug", String.format("#%d: %s", count, voice.getName()));
-                        count++;
-                    }
-
-                    Voice selectedVoice = new Voice("cmn-tw-x-ctd-local", new Locale("cmn", "TW"), 400, 200, true, strSet);
-
-                    textToSpeech.setVoice(selectedVoice);
-                    textToSpeech.setPitch(1f);
-                    textToSpeech.setSpeechRate(1.25f);
-                }
-            }
-        });
-        */
+        assistantNoAsyncTest = new AssistantNoAsyncTest();
 
         // Adding OnClickListener
         btnText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*
-                String userInput = Text.getText().toString();
-                Text.setText("");
+                String input = Text.getText().toString();
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            String response = new AIResponse().execute(userInput).get();
-
-                            String[] sentences = response.split("。");
-                            Queue<String> sentenceQueue = new LinkedList<>();
-
-                            for (String sentence: sentences) {
-                                AITextToSpeech textToSpeech = new AITextToSpeech();
-                                textToSpeech.setSpeaker(speaker);
-                                textToSpeech.execute(sentence);
-                            }
-                        } catch (ExecutionException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-
-                 */
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    //openAITest.sendMessage(Text.getText().toString());
-                    try {
-                        String response = assistantNoAsyncTest.sendMessage(Text.getText().toString());
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (!input.equals("end")) {
+                                    String response = assistantNoAsyncTest.sendMessage(input);
+                                    Log.e("Debug", response);
 
-                        Log.e("Debug", response);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                                    String[] sentences = response.split("。");
 
+                                    for (String sentence: sentences) {
+                                        AITextToSpeech textToSpeech = new AITextToSpeech();
+                                        textToSpeech.setSpeaker(speaker);
+                                        textToSpeech.execute(sentence);
+                                    }
+                                } else {
+                                    assistantNoAsyncTest.deleteAssistant();
+                                }
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }).start();
                 }
             }
         });

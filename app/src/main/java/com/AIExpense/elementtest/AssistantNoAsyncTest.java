@@ -38,9 +38,9 @@ public class AssistantNoAsyncTest {
                 assistant = client.beta()
                         .assistants()
                         .create(AssistantCreateParams.builder()
-                                .name("Math Tutor")
-                                .instructions("You are a personal math tutor. Write and run code to answer math questions.")
-                                .model(ChatModel.GPT_4O_MINI)
+                                .name("Expense Helper")
+                                .instructions("You are a friend of the user who wants to record their daily expenses. Please talk to him and help him remember what he bought and record it. You should only provide response with words, that means you need to turn all the numbers and into words and remove any unnecessary markings, as that is easier for the user to understand. Please don't use the English quotation mark, as they can mess up the handling system. You also don't need to list out the calculation process, when answering, simply repeat the important information and provide the calculated solution. But the user doesn't speak English, please speak to them in Chinese Mandarin")
+                                .model(ChatModel.GPT_3_5_TURBO)
                                 .build());
 
                 thread = client.beta().threads().create();
@@ -73,7 +73,7 @@ public class AssistantNoAsyncTest {
                         .create(RunCreateParams.builder()
                                 .threadId(curThreadID)
                                 .assistantId(curAssistantID)
-                                .instructions("Please address the user as Jane Doe. The user has a premium account.")
+                                .instructions("Please address the user as Steven.")
                                 .build());
 
                 while (run.status().equals(RunStatus.QUEUED) || run.status().equals(RunStatus.IN_PROGRESS)) {
@@ -107,7 +107,6 @@ public class AssistantNoAsyncTest {
                                 .order(MessageListParams.Order.ASC)
                                 .build());
                 page.autoPager().stream().forEach(currentMessage -> {
-                    Log.e("Debug", currentMessage.role().toString().toUpperCase());
                     currentMessage.content().stream()
                             .flatMap(content -> content.text().stream())
                             .forEach(textBlock -> {
@@ -135,6 +134,15 @@ public class AssistantNoAsyncTest {
                 .delete(AssistantDeleteParams.builder()
                         .assistantId(assistant.id())
                         .build());
+
+        //thread = null;
+        //assistant = null;
+        //client = null;
+
         System.out.println("Assistant deleted: " + assistantDeleted.deleted());
+    }
+
+    public boolean checkClient() {
+        return client != null;
     }
 }
