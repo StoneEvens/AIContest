@@ -1,0 +1,184 @@
+package com.AIExpense.elementtest;
+
+import android.os.AsyncTask;
+import android.os.Build;
+import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+
+import com.openai.client.OpenAIClientAsync;
+import com.openai.client.okhttp.OpenAIOkHttpClientAsync;
+import com.openai.models.ChatModel;
+import com.openai.models.beta.assistants.Assistant;
+import com.openai.models.beta.assistants.AssistantCreateParams;
+import com.openai.models.beta.threads.Thread;
+import com.openai.models.beta.threads.ThreadCreateParams;
+import com.openai.models.beta.threads.messages.Message;
+import com.openai.models.beta.threads.messages.MessageCreateParams;
+import com.openai.models.beta.threads.messages.MessageListPageAsync;
+import com.openai.models.beta.threads.messages.MessageListParams;
+import com.openai.models.beta.threads.runs.Run;
+import com.openai.models.beta.threads.runs.RunCreateParams;
+import com.openai.models.beta.threads.runs.RunRetrieveParams;
+import com.openai.models.beta.threads.runs.RunStatus;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+public class ChatSession {
+    private final OpenAIClientAsync client;
+    private final Executor backgroundExecutor = Executors.newFixedThreadPool(2);
+    private CompletableFuture<Assistant> assistantFuture;
+    private CompletableFuture<Thread> threadIdFuture;
+    private CompletableFuture<Run> runFuture;
+    private final ArrayList<String> messageList = new ArrayList<>();
+
+    public ChatSession() {
+        client = OpenAIOkHttpClientAsync.builder()
+                .fromEnv()
+                .apiKey("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")
+                .build();
+
+        assistantFuture = client.beta()
+                .assistants()
+                .create(AssistantCreateParams.builder()
+                        .name("AI Recorder")
+                        .instructions("You will act as a friend of the user and kindly listen and respond to the user when they are sharing what they buy")
+                        .model(ChatModel.GPT_4O_MINI)
+                        .build());
+
+        threadIdFuture = client.beta()
+                .threads()
+                .create(ThreadCreateParams.builder().build());
+    }
+
+    public String sendMessage(String input) throws ExecutionException, InterruptedException {
+        // Initialize the AtomicReference to hold the response
+        AtomicReference<String> response = new AtomicReference<>("No response from AI.");
+
+        // Execute the ChatSessionMessage task and get the result synchronously
+        new ChatSessionMessage(response).execute(input).get();
+
+        // Return the response from AtomicReference
+        return response.get();
+    }
+
+    private class ChatSessionMessage extends AsyncTask<String, Void, Void>{
+        private final AtomicReference<String> responseRef;
+
+        public ChatSessionMessage(AtomicReference<String> responseRef) {
+            this.responseRef = responseRef;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @Override
+        protected Void doInBackground(String... strings) {
+            String curThreadID = threadIdFuture.join().id();
+            String curAssistantID = assistantFuture.join().id();
+
+            client.beta()
+                    .threads()
+                    .messages()
+                    .create(MessageCreateParams.builder()
+                            .threadId(curThreadID)
+                            .role(MessageCreateParams.Role.USER)
+                            .content(strings[0])
+                            .build())
+                    .join();
+
+            runFuture = client.beta()
+                    .threads()
+                    .runs()
+                    .create(RunCreateParams.builder()
+                            .threadId(curThreadID)
+                            .assistantId(curAssistantID)
+                            .instructions("Please call the user Steven.")
+                            .build());
+
+            CompletableFuture<Run> polledRunFuture = runFuture.thenComposeAsync(run -> pollRun(client, run));
+
+            polledRunFuture
+                    .thenComposeAsync(run -> {
+                        if (!run.status().equals(RunStatus.COMPLETED)) {
+                            return CompletableFuture.completedFuture(null);
+                        }
+
+                        return listThreadMessages(client, run.threadId());
+                    })
+                    .join();
+
+            responseRef.set(getResponse(messageList));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+        }
+
+        private CompletableFuture<Run> pollRun(OpenAIClientAsync client, Run run) {
+            if (!run.status().equals(RunStatus.QUEUED) && !run.status().equals(RunStatus.IN_PROGRESS)) {
+                Log.e("Debug","Run Completed with status " + run.status().toString());
+                return CompletableFuture.completedFuture(run);
+            }
+
+            Log.e("Debug", "Polling Run");
+            try {
+                java.lang.Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            return client.beta()
+                    .threads()
+                    .runs()
+                    .retrieve(RunRetrieveParams.builder()
+                            .threadId(run.threadId())
+                            .runId(run.id())
+                            .build()
+                    )
+                    .thenComposeAsync(task -> pollRun(client, task));
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.S)
+        private CompletableFuture<Void> listThreadMessages(OpenAIClientAsync client, String threadId) {
+            CompletableFuture<MessageListPageAsync> page = client.beta()
+                    .threads()
+                    .messages()
+                    .list(MessageListParams.builder()
+                            .threadId(threadId)
+                            .order(MessageListParams.Order.ASC)
+                            .build()
+                    );
+
+            return page.thenAcceptAsync(pg -> {
+                // clear the list before inserting new messages
+                messageList.clear();
+                pg.autoPager()
+                        .forEach(message -> {
+                            if(message.role().toString().toUpperCase().equals("ASSISTANT")){
+                                message.content().stream()
+                                        .flatMap(messageContent -> messageContent.text().stream())
+                                        .forEach(text -> {
+                                            messageList.add(text.text().value());
+                                        });
+                            }
+                            return true;
+                        }, page.defaultExecutor());
+            });
+        }
+
+        private String getResponse(List<String> list) {
+            if (list.isEmpty()) {
+                return "No response from AI.";
+            }
+            return list.get(list.size() - 1);
+        }
+    }
+}

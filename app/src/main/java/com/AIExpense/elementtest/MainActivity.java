@@ -10,12 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,7 +40,9 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         speaker = new Speaker();
 
-        OpenAITest openAITest = new OpenAITest();
+        //OpenAITest openAITest = new OpenAITest();
+        //ChatSession session = new ChatSession();
+        AssistantNoAsyncTest assistantNoAsyncTest = new AssistantNoAsyncTest();
 
         // create an object textToSpeech and adding features into it
         /*
@@ -108,7 +109,15 @@ public class MainActivity extends AppCompatActivity {
 
                  */
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    openAITest.sendMessage(Text.getText().toString());
+                    //openAITest.sendMessage(Text.getText().toString());
+                    try {
+                        String response = assistantNoAsyncTest.sendMessage(Text.getText().toString());
+
+                        Log.e("Debug", response);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             }
         });

@@ -13,7 +13,6 @@ import com.openai.models.beta.assistants.AssistantCreateParams;
 import com.openai.models.beta.assistants.AssistantDeleteParams;
 import com.openai.models.beta.threads.Thread;
 import com.openai.models.beta.threads.ThreadCreateParams;
-import com.openai.models.beta.threads.messages.Message;
 import com.openai.models.beta.threads.messages.MessageCreateParams;
 import com.openai.models.beta.threads.messages.MessageListPageAsync;
 import com.openai.models.beta.threads.messages.MessageListParams;
