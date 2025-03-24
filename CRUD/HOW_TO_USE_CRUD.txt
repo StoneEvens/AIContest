@@ -1,0 +1,22 @@
+資料庫結構
+所有項目:ID NAME COST YEAR MONTH HOUR MIN SEC 
+
+
+
+必要語句:
+CRUD 自定名稱(以下用tool示範) = new CRUD();
+
+
+增新:
+tool.put(名稱,價格)  //時間自動產生
+
+
+搜尋:
+tool.search(項目, >或<或=, 數值)
+
+
+修改
+tool.edit(項目, 修改值, 要修改項目的ID)
+
+
+
