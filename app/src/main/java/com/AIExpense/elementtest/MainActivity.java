@@ -15,17 +15,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ExecutionException;
-
 public class MainActivity extends AppCompatActivity {
 
     EditText Text;
     Button btnText;
     MediaPlayer mediaPlayer;
     Speaker speaker;
-    AssistantNoAsyncTest assistantNoAsyncTest;
+    GPTConnector GPTConnector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         speaker = new Speaker();
 
-        assistantNoAsyncTest = new AssistantNoAsyncTest();
+        GPTConnector = new GPTConnector();
 
         // Adding OnClickListener
         btnText.setOnClickListener(new View.OnClickListener() {
@@ -57,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             try {
                                 if (!input.equals("end")) {
-                                    String response = assistantNoAsyncTest.sendMessage(input);
+                                    String response = GPTConnector.sendMessage(input);
                                     Log.e("Debug", response);
 
                                     String[] sentences = response.split("。");
@@ -68,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                                         textToSpeech.execute(sentence);
                                     }
                                 } else {
-                                    assistantNoAsyncTest.deleteAssistant();
+                                    GPTConnector.deleteAssistant();
                                 }
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);

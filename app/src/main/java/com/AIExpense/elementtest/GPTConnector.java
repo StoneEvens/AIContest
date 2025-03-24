@@ -20,13 +20,13 @@ import com.openai.models.beta.threads.Thread;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AssistantNoAsyncTest {
+public class GPTConnector {
     private OpenAIClient client;
     private Assistant assistant;
     private Thread thread;
     private String response = "";
 
-    public AssistantNoAsyncTest() {
+    public GPTConnector() {
         new java.lang.Thread(new Runnable() {
             @Override
             public void run() {
