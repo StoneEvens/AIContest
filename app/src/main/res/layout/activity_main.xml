@@ -35,8 +35,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="70dp"
+        android:layout_marginBottom="70dp"
         android:gravity="center_horizontal"
         android:text="GEEKSFORGEEKS"
+        android:textColor="@android:color/holo_green_dark"
+        android:textSize="36sp" />
+
+    <Button
+        android:id="@+id/speechBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Click Here" />
+
+    <TextView
+        android:id="@+id/recognizedText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="70dp"
+        android:gravity="center_horizontal"
+        android:text="Test"
         android:textColor="@android:color/holo_green_dark"
         android:textSize="36sp" />
 

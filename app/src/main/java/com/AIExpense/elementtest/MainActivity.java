@@ -14,14 +14,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
     EditText Text;
-    Button btnText;
+    TextView RecognizeText;
+    Button btnText, recognizeButton;
     MediaPlayer mediaPlayer;
     Speaker speaker;
     GPTConnector GPTConnector;
+    SpeechToText stt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +39,15 @@ public class MainActivity extends AppCompatActivity {
 
         Text = findViewById(R.id.Text);
         btnText = findViewById(R.id.btnText);
+
+        RecognizeText = findViewById(R.id.recognizedText);
+        recognizeButton = findViewById(R.id.speechBtn);
+
         mediaPlayer = new MediaPlayer();
         speaker = new Speaker();
 
         GPTConnector = new GPTConnector();
+        stt = new SpeechToText(getApplicationContext(), recognizeButton);
 
         // Adding OnClickListener
         btnText.setOnClickListener(new View.OnClickListener() {
@@ -64,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                                         textToSpeech.execute(sentence);
                                     }
                                 } else {
-                                    GPTConnector.deleteAssistant();
+                                    //GPTConnector.deleteAssistant();
                                 }
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
@@ -74,5 +82,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        recognizeButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Log.e("Debug", "Attempting STT");
+                stt.start();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        //GPTConnector.deleteAssistant();
+        super.onDestroy();
     }
 }
