@@ -43,6 +43,7 @@ public class GPTConnector {
                                 //.instructions("You are a friend of the user who wants to record their daily expenses. Please talk to him and help him remember what he bought and record it. You should only provide response with words, that means you need to turn all the numbers and into words and remove any unnecessary markings, as that is easier for the user to understand. Please don't use the English quotation mark, as they can mess up the handling system. You also don't need to list out the calculation process, when answering, simply repeat the important information and provide the calculated solution. But the user doesn't speak English, please speak to them in Chinese Mandarin")
                                 //.model(ChatModel.GPT_3_5_TURBO)
                                 //.build());
+                Log.e("Debug", "Debug");
 
                 thread = client.beta().threads().create();
 
