@@ -19,6 +19,8 @@ public class SpeechToText {
     public SpeechToText(Context context, TextView textView) {
         recognizer = SpeechRecognizer.createSpeechRecognizer(context);
         this.textView = textView;
+
+        start();
     }
 
     public void start() {
