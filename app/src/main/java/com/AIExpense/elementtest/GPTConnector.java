@@ -45,14 +45,14 @@ public class GPTConnector {
                                 //.build());
                 Log.e("Debug", "Debug");
 
-                thread = client.beta().threads().create();
-
                 assistant = client.beta()
                         .assistants()
                         .retrieve(AssistantRetrieveParams.builder()
                                 .assistantId("asst_Ope0QQ7Il5V7qnrkFYdF6JOR")
                                 .build()
                         );
+
+                thread = client.beta().threads().create();
             }
         }).start();
     }
