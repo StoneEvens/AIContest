@@ -36,21 +36,21 @@ public class GPTConnector {
                         .apiKey("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")
                         .build();
 
-                assistant = client.beta()
-                        .assistants()
-                        .create(AssistantCreateParams.builder()
-                                .name("Expense Helper")
-                                .instructions("You are a friend of the user who wants to record their daily expenses. Please talk to him and help him remember what he bought and record it. You should only provide response with words, that means you need to turn all the numbers and into words and remove any unnecessary markings, as that is easier for the user to understand. Please don't use the English quotation mark, as they can mess up the handling system. You also don't need to list out the calculation process, when answering, simply repeat the important information and provide the calculated solution. But the user doesn't speak English, please speak to them in Chinese Mandarin")
-                                .model(ChatModel.GPT_3_5_TURBO)
-                                .build());
-                Log.e("Debug", "Debug");
-
                 //assistant = client.beta()
                         //.assistants()
-                        //.retrieve(AssistantRetrieveParams.builder()
-                                //.assistantId("asst_jo0JgHb2WdzbZg20paW2cVpu")
-                                //.build()
-                        //);
+                        //.create(AssistantCreateParams.builder()
+                                //.name("Expense Helper")
+                                //.instructions("You are a friend of the user who wants to record their daily expenses. Please talk to him and help him remember what he bought and record it. You should only provide response with words, that means you need to turn all the numbers and into words and remove any unnecessary markings, as that is easier for the user to understand. Please don't use the English quotation mark, as they can mess up the handling system. You also don't need to list out the calculation process, when answering, simply repeat the important information and provide the calculated solution. But the user doesn't speak English, please speak to them in Chinese Mandarin")
+                                //.model(ChatModel.GPT_3_5_TURBO)
+                                //.build());
+                Log.e("Debug", "Debug");
+
+                assistant = client.beta()
+                        .assistants()
+                        .retrieve(AssistantRetrieveParams.builder()
+                                .assistantId("asst_jo0JgHb2WdzbZg20paW2cVpu")
+                                .build()
+                        );
 
                 thread = client.beta().threads().create();
             }
@@ -82,7 +82,7 @@ public class GPTConnector {
                         .create(RunCreateParams.builder()
                                 .threadId(curThreadID)
                                 .assistantId(curAssistantID)
-                                .instructions("Please address the user as Steven.")
+                                .instructions("Please address the user as Steven. And since the user doesn't speak English, please respond to the user in Chinese Mandarin using Traditional Chinese characters.")
                                 .build());
 
                 while (run.status().equals(RunStatus.QUEUED) || run.status().equals(RunStatus.IN_PROGRESS)) {

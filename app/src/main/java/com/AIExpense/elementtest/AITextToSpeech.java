@@ -56,7 +56,7 @@ public class AITextToSpeech extends AsyncTask<String, Void, byte[]> {
     protected void onPostExecute(byte[] audioData) {
         if (audioData != null) {
             Log.e("Debug", "Audio Generated Finished");
-            speaker.addAudio(audioData);
+            //speaker.addAudio(audioData);
         } else {
             Log.e("Debug", "Audio data is null");
         }

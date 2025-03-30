@@ -18,13 +18,15 @@ public class GoogleTTS {
     private static final String apiKey = "AIzaSyDosZtgE8SVLTfYJtM2p1pes5yByNSMvD0";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private Speaker speaker;
+    private int index;
 
     public GoogleTTS() {
 
     }
 
-    public void setSpeaker(Speaker speaker) {
+    public void setSpeaker(Speaker speaker, int index) {
         this.speaker = speaker;
+        this.index = index;
     }
 
     public void speak(String text) {
@@ -40,11 +42,13 @@ public class GoogleTTS {
                 // Create voice JSON
                 JSONObject voice = new JSONObject();
                 voice.put("languageCode", "cmn-TW");
+                voice.put("name", "cmn-TW-Wavenet-A");
                 voice.put("ssmlGender", "MALE");
 
                 // Create audio config JSON
                 JSONObject audioConfig = new JSONObject();
                 audioConfig.put("audioEncoding", "MP3");
+                audioConfig.put("speakingRate", "1.3");
 
                 // Combine into request JSON
                 jsonObject.put("input", input);
@@ -68,7 +72,7 @@ public class GoogleTTS {
                     byte[] audioBytes = Base64.decode(audioContent, Base64.DEFAULT);
 
                     //playAudio(audioBytes);
-                    speaker.addAudio(audioBytes);
+                    speaker.addAudio(audioBytes, index);
                 } else {
                     Log.e(TAG, "Request failed: " + response.body().string());
                 }

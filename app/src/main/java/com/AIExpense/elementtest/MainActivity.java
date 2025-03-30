@@ -1,12 +1,14 @@
 package com.AIExpense.elementtest;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,6 +23,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.AIExpense.elementtest.RealtimeSession.Realtime;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,7 +34,10 @@ public class MainActivity extends AppCompatActivity {
     Button btnText, recognizeButton;
     MediaPlayer mediaPlayer;
     Speaker speaker;
-    GPTConnector GPTConnector;
+    //GPTConnector GPTConnector;
+
+    Realtime realtime;
+
     //SpeechToText stt;
     //SpeechRecognizer speechRecognizer;
 
@@ -54,7 +61,21 @@ public class MainActivity extends AppCompatActivity {
         mediaPlayer = new MediaPlayer();
         speaker = new Speaker();
 
-        GPTConnector = new GPTConnector();
+        //GPTConnector = new GPTConnector();
+
+        realtime = new Realtime();
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        realtime.startStreaming();
+
         //stt = new SpeechToText(getApplicationContext(), recognizeButton);
 
         // Initialize SpeechRecognizer
@@ -103,36 +124,40 @@ public class MainActivity extends AppCompatActivity {
         btnText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String input = Text.getText().toString();
+//                if (!Text.getText().toString().isEmpty()) {
+//                    String input = Text.getText().toString();
+//                    Text.setText("");
+//
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//                        new Thread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                try {
+//                                    if (!input.equals("end")) {
+//                                        String response = GPTConnector.sendMessage(input);
+//                                        Log.e("Debug", response);
+//
+//                                        String[] sentences = response.split("。");
+//                                        speaker.setAudioBufferSize(sentences.length);
+//
+//                                        for (int i = 0; i < sentences.length; i++) {
+//                                            String sentence = sentences[i];
+//                                            GoogleTTS googleTTS = new GoogleTTS();
+//                                            googleTTS.setSpeaker(speaker, i);
+//                                            googleTTS.speak(sentence);
+//                                        }
+//                                    } else {
+//                                        GPTConnector.deleteAssistant();
+//                                    }
+//                                } catch (InterruptedException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//                            }
+//                        }).start();
+//                    }
+//                }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                if (!input.equals("end")) {
-                                    String response = GPTConnector.sendMessage(input);
-                                    Log.e("Debug", response);
 
-                                    String[] sentences = response.split("。");
-
-                                    for (String sentence: sentences) {
-                                        //AITextToSpeech textToSpeech = new AITextToSpeech();
-                                        //textToSpeech.setSpeaker(speaker);
-                                        //textToSpeech.execute(sentence);
-                                        GoogleTTS googleTTS = new GoogleTTS();
-                                        googleTTS.setSpeaker(speaker);
-                                        googleTTS.speak(sentence);
-                                    }
-                                } else {
-                                    GPTConnector.deleteAssistant();
-                                }
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }).start();
-                }
             }
         });
 
@@ -155,7 +180,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        GPTConnector.deleteAssistant();
+        //GPTConnector.deleteAssistant();
+        speaker.stop();
         super.onDestroy();
     }
 }

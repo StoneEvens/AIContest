@@ -33,6 +33,7 @@ android {
     packagingOptions {
         exclude("META-INF/INDEX.LIST")
         exclude("META-INF/DEPENDENCIES")
+        exclude("mozilla/public-suffix-list.txt")
     }
 }
 
@@ -46,6 +47,7 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    implementation(libs.okhttp)
+    implementation(libs.okhttp.v4120)
     implementation(libs.openai.java)
+    implementation("com.google.cloud:google-cloud-texttospeech:2.28.0")
 }

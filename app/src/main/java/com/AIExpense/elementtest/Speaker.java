@@ -11,20 +11,26 @@ import java.util.Queue;
 
 public class Speaker {
     volatile static MediaPlayer mediaPlayer;
-    volatile static Queue<byte[]> audioQueue;
+    //volatile static Queue<byte[]> audioQueue;
+    volatile static byte[][] audioBuffer;
     boolean available, playing;
 
     public Speaker() {
         mediaPlayer = new MediaPlayer();
-        audioQueue = new LinkedList<>();
+        //audioQueue = new LinkedList<>();
         available = true;
         playing = false;
 
         new Thread(new audioRunnable()).start();
     }
 
-    public void addAudio(byte[] audio) {
-        audioQueue.add(audio);
+    public void setAudioBufferSize(int size) {
+        audioBuffer = new byte[size][];
+    }
+
+    public void addAudio(byte[] audio, int index) {
+        //audioQueue.add(audio);
+        audioBuffer[index] = audio;
     }
 
     public void stop() {
@@ -32,34 +38,53 @@ public class Speaker {
     }
 
     private class audioRunnable implements Runnable {
+        int index = 0;
+
         @Override
         public void run() {
             while (available) {
-                if (!audioQueue.isEmpty() && !playing) {
-                    byte[] data = audioQueue.poll();
+//                if (!audioQueue.isEmpty() && !playing) {
+//                    byte[] data = audioQueue.poll();
+//
+//                    if (data != null) {
+//
+//                    }
+//                }
 
-                    if (data != null) {
-                        try {
-                            playing = true;
-                            mediaPlayer.setDataSource(new ByteArrayMediaDataSource(data));
+                if (!playing && audioBuffer != null && audioBuffer[index] != null) {
 
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
+                    try {
+                        playing = true;
+                        mediaPlayer.setDataSource(new ByteArrayMediaDataSource(audioBuffer[index]));
 
-                            Log.e("Debug", "Finished");
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
 
-                            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                                @Override
-                                public void onCompletion(MediaPlayer mp) {
-                                    mediaPlayer.release();
-                                    mediaPlayer = new MediaPlayer();
+                        Log.e("Debug", "Finished");
 
-                                    playing = false;
-                                }
-                            });
-                        } catch (IOException e) {
-                            Log.e("Debug", "Error playing audio", e);
-                        }
+                        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                            @Override
+                            public void onCompletion(MediaPlayer mp) {
+                                mediaPlayer.release();
+                                mediaPlayer = new MediaPlayer();
+
+                                playing = false;
+                            }
+                        });
+                    } catch (IOException e) {
+                        Log.e("Debug", "Error playing audio", e);
+                    }
+
+                    if (index < audioBuffer.length - 1) {
+                        index++;
+                    } else {
+                        audioBuffer = null;
+                    }
+                } else {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -84,12 +109,12 @@ public class Speaker {
         }
 
         @Override
-        public long getSize() throws IOException {
+        public long getSize() {
             return data.length;
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             // No resources to close for ByteArray
         }
     }
