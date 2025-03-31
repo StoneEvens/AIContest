@@ -1,4 +1,4 @@
-package com.AIExpense.elementtest;
+package com.AIExpense.elementtest.old;
 
 import android.os.AsyncTask;
 import android.os.Build;
@@ -13,7 +13,6 @@ import com.openai.models.beta.assistants.Assistant;
 import com.openai.models.beta.assistants.AssistantCreateParams;
 import com.openai.models.beta.threads.Thread;
 import com.openai.models.beta.threads.ThreadCreateParams;
-import com.openai.models.beta.threads.messages.Message;
 import com.openai.models.beta.threads.messages.MessageCreateParams;
 import com.openai.models.beta.threads.messages.MessageListPageAsync;
 import com.openai.models.beta.threads.messages.MessageListParams;
@@ -28,7 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ChatSession {

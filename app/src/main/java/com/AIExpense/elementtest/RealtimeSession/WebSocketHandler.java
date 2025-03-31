@@ -77,10 +77,6 @@ public class WebSocketHandler {
         }
     }
 
-    private void addAudioData(byte[] audioData) {
-        audioPlayer.addAudioData(audioData);
-    }
-
     private void filterMessage(String text) {
         int startIndex = 9;
         int endIndex = text.indexOf(",", startIndex) - 1;

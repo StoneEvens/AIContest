@@ -1,13 +1,10 @@
-package com.AIExpense.elementtest;
+package com.AIExpense.elementtest.old;
 
 import android.media.MediaDataSource;
 import android.media.MediaPlayer;
 import android.util.Log;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class Speaker {
     volatile static MediaPlayer mediaPlayer;

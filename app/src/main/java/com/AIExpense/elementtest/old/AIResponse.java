@@ -1,4 +1,4 @@
-package com.AIExpense.elementtest;
+package com.AIExpense.elementtest.old;
 
 import static android.content.ContentValues.TAG;
 
@@ -9,9 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;

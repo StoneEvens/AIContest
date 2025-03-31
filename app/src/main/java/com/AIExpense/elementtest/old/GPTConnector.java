@@ -1,12 +1,10 @@
-package com.AIExpense.elementtest;
+package com.AIExpense.elementtest.old;
 
 import android.util.Log;
 
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.models.ChatModel;
 import com.openai.models.beta.assistants.Assistant;
-import com.openai.models.beta.assistants.AssistantCreateParams;
 import com.openai.models.beta.assistants.AssistantDeleteParams;
 import com.openai.models.beta.assistants.AssistantDeleted;
 import com.openai.models.beta.assistants.AssistantRetrieveParams;
