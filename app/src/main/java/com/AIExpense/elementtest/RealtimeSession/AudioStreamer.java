@@ -4,22 +4,24 @@ import android.Manifest;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.util.Log;
 
 import androidx.annotation.RequiresPermission;
 
 public class AudioStreamer {
-    private WebSocketHandler webSocketHandler;
-    private static final int SAMPLE_RATE = 24000; // Adjust based on OpenAI's requirements
+    private final WebSocketHandler webSocketHandler;
+    private final AudioPlayer audioPlayer;
     private AudioRecord audioRecord;
     private boolean isStreaming = false;
 
-    public AudioStreamer(WebSocketHandler webSocketHandler) {
+    public AudioStreamer(WebSocketHandler webSocketHandler, AudioPlayer audioPlayer) {
         this.webSocketHandler = webSocketHandler;
+        this.audioPlayer = audioPlayer;
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startRecording() {
+        final int SAMPLE_RATE = 24000;
+
         int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
 
@@ -35,7 +37,9 @@ public class AudioStreamer {
                 int bytesRead = audioRecord.read(audioBuffer, 0, audioBuffer.length);
                 if (bytesRead > 0) {
                     // Pass the audioBuffer to the WebSocket client
-                    sendAudioData(audioBuffer);
+                    if (!audioPlayer.getPlaying()) {
+                        sendAudioData(audioBuffer);
+                    }
                 }
             }
         }).start();

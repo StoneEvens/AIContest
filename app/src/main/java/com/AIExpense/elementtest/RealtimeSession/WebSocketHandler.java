@@ -73,7 +73,7 @@ public class WebSocketHandler {
             // Send the payload
             webSocket.send(jsonPayload);
         } else {
-            System.out.println("WebSocket is not connected.");
+            Log.e("Debug","WebSocket is not connected.");
         }
     }
 
@@ -87,15 +87,13 @@ public class WebSocketHandler {
                 setSessionID(text);
                 break;
             case "response.audio.delta":
-                //encodedAudio += getAudioData(text);
                 encodedAudio = getAudioData(text);
                 audioPlayer.addAudioData(Base64.decode(encodedAudio, Base64.DEFAULT));
-                break;
-            case "response.created":
                 encodedAudio = "";
                 break;
-            case "response.audio.done":
-                //addAudioData(Base64.decode(encodedAudio, Base64.DEFAULT));
+            case "input_audio_buffer.speech_started":
+                audioPlayer.clearAudioData();
+                break;
             default:
                 break;
         }

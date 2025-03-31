@@ -12,7 +12,7 @@ public class Realtime {
     public Realtime() {
         audioPlayer = new AudioPlayer();
         webSocketHandler = new WebSocketHandler(audioPlayer);
-        audioStreamer = new AudioStreamer(webSocketHandler);
+        audioStreamer = new AudioStreamer(webSocketHandler, audioPlayer);
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
