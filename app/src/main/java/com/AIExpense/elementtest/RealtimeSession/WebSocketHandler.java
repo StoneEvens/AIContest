@@ -1,7 +1,9 @@
 package com.AIExpense.elementtest.RealtimeSession;
 
+import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -13,13 +15,17 @@ public class WebSocketHandler {
 
     private final String url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview";
     private final String apiKey = "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";
+    private final String prompt = "You are a helpful assistant!";
+    private final String voice = "ash";
     private WebSocket webSocket;
     private String sessionID;
     private String encodedAudio;
     private AudioPlayer audioPlayer;
+    private boolean connected;
 
     public WebSocketHandler(AudioPlayer audioPlayer) {
         this.audioPlayer = audioPlayer;
+        connected = false;
     }
 
     public void connect() {
@@ -35,6 +41,7 @@ public class WebSocketHandler {
             @Override
             public void onOpen(WebSocket webSocket, okhttp3.Response response) {
                 Log.i("Debug","Connected to OpenAI API");
+                connected = true;
             }
 
             @Override
@@ -58,6 +65,7 @@ public class WebSocketHandler {
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, okhttp3.Response response) {
                 Log.i("Debug","Error: " + t.getMessage());
+                connected = true;
             }
         });
     }
@@ -77,6 +85,26 @@ public class WebSocketHandler {
         }
     }
 
+    public void sessionUpdate() {
+        if (webSocket != null && sessionID != null) {
+            String jsonPayload = String.format("{"
+                    + "\"event_id\": \"%s\","
+                    + "\"type\": \"session.update\","
+                    + "\"session\": {"
+                    +       "\"instructions\": \"%s\","
+                    +       "\"voice\": \"%s\","
+                    +       "\"turn_detection\": {\n" +
+                                    "\"type\": \"server_vad\",\n" +
+                                    "\"threshold\": 0.5,\n" +
+                                    "\"prefix_padding_ms\": 300,\n" +
+                                    "\"silence_duration_ms\": 500,\n" +
+                                    "\"create_response\": true\n" +
+                            "},"
+                    + "}"
+                    ,sessionID, prompt, voice);
+        }
+    }
+
     private void filterMessage(String text) {
         int startIndex = 9;
         int endIndex = text.indexOf(",", startIndex) - 1;
@@ -85,6 +113,7 @@ public class WebSocketHandler {
         switch (type) {
             case "session.created":
                 setSessionID(text);
+                sessionUpdate();
                 break;
             case "response.audio.delta":
                 encodedAudio = getAudioData(text);
@@ -109,5 +138,9 @@ public class WebSocketHandler {
         int endIndex = text.indexOf(",", startIndex) - 1;
         sessionID = text.substring(startIndex, endIndex);
         Log.e("Debug", sessionID);
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 }

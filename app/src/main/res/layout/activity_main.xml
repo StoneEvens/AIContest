@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,52 +11,34 @@
     tools:context=".MainActivity">
 
     <!--To add text in the app-->
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/Text"
-        android:layout_marginBottom="20dp"
-        android:hint="Enter Any Sentence"
-        android:gravity="center"
-        android:textSize="16dp"/>
 
     <!--when you press this button it will
         convert text into speech-->
-    <Button
-        android:layout_width="wrap_content"
-        android:id="@+id/btnText"
-        android:layout_height="wrap_content"
-        android:text="Click Here"
-        android:layout_gravity="center"/>
 
     <!--To display the name of GeeksForGeeks -->
-    <TextView
-        android:id="@+id/textView"
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        android:layout_marginBottom="70dp"
-        android:gravity="center_horizontal"
-        android:text="GEEKSFORGEEKS"
-        android:textColor="@android:color/holo_green_dark"
-        android:textSize="36sp" />
+        android:layout_alignParentBottom="true">
 
-    <Button
-        android:id="@+id/speechBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Click Here" />
+        <Button
+            android:id="@+id/StartButon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center"
+            android:layout_marginStart="0dp"
+            android:text="Start Conversation" />
 
-    <TextView
-        android:id="@+id/recognizedText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        android:layout_marginBottom="70dp"
-        android:gravity="center_horizontal"
-        android:text="Test"
-        android:textColor="@android:color/holo_green_dark"
-        android:textSize="36sp" />
+        <Button
+            android:id="@+id/EndButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="center"
+            android:layout_marginEnd="10dp"
+            android:text="End Conversation" />
+    </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

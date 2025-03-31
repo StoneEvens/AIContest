@@ -13,18 +13,12 @@ import androidx.core.view.WindowInsetsCompat;
 
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.AIExpense.elementtest.RealtimeSession.Realtime;
 import com.AIExpense.elementtest.old.Speaker;
 
 public class MainActivity extends AppCompatActivity {
-    EditText Text;
-    TextView RecognizeText;
-    Button btnText, recognizeButton;
-    MediaPlayer mediaPlayer;
-    Speaker speaker;
+    Button startButton, endButton;
     Realtime realtime;
 
     @Override
@@ -38,41 +32,40 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        Text = findViewById(R.id.Text);
-        btnText = findViewById(R.id.btnText);
+        startButton = findViewById(R.id.StartButon);
+        endButton = findViewById(R.id.EndButton);
 
-        RecognizeText = findViewById(R.id.recognizedText);
-        recognizeButton = findViewById(R.id.speechBtn);
+        realtime = new Realtime(this.getApplicationContext());
 
-        mediaPlayer = new MediaPlayer();
-        speaker = new Speaker();
-
-        realtime = new Realtime();
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        realtime.startStreaming();
 
         // Adding OnClickListener
-        btnText.setOnClickListener(new View.OnClickListener() {
+        startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                realtime.startStreaming();
+            }
+        });
 
+        endButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                realtime.stopStreaming();
             }
         });
     }
 
     @Override
     protected void onDestroy() {
-        //GPTConnector.deleteAssistant();
-        speaker.stop();
         super.onDestroy();
     }
 }

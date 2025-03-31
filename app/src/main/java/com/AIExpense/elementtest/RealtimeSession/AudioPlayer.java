@@ -20,6 +20,13 @@ public class AudioPlayer {
 
         available = true;
         playing = false;
+    }
+
+    public void start() {
+        audioQueue = new LinkedList<>();
+
+        available = true;
+        playing = false;
 
         new PlayerThread().start();
     }
@@ -55,7 +62,6 @@ public class AudioPlayer {
                         audioTrack.stop();
                         audioTrack.release();
                         playing = false;
-                        Log.e("Debug", "Playing Set to False");
                     }
                 }
 
