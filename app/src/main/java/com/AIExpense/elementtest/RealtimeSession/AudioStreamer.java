@@ -10,7 +10,7 @@ import androidx.annotation.RequiresPermission;
 
 public class AudioStreamer {
     private WebSocketHandler webSocketHandler;
-    private static final int SAMPLE_RATE = 16000; // Adjust based on OpenAI's requirements
+    private static final int SAMPLE_RATE = 24000; // Adjust based on OpenAI's requirements
     private AudioRecord audioRecord;
     private boolean isStreaming = false;
 
