@@ -5,6 +5,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.AIExpense.elementtest.Transcription.Transcription;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
@@ -15,16 +17,18 @@ public class WebSocketHandler {
 
     private final String url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview";
     private final String apiKey = "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";
-    private final String prompt = "You are a helpful assistant!";
+    private final String prompt = "You are a friend of the user who wants to record their daily expenses. Please talk to him and help him remember what he bought and record it. Remember that you are a close friend of the user, so don't start with asking the user what they spent, try to have a small talk and lead the user to recalling their expenses. You also don't need to list out the calculation process, when answering, simply react to the items, such as your thoughts about the item, and provide the calculated solution. Also, the user doesn't speak English, please speak to them in Chinese Mandarin, more specific the Chinese commonly used in Taiwan. Please also speak using a Taiwanese accent, as the user is more familiar with the Taiwan accent.";
     private final String voice = "ash";
     private WebSocket webSocket;
     private String sessionID;
     private String encodedAudio;
-    private AudioPlayer audioPlayer;
+    private final AudioPlayer audioPlayer;
+    private final Transcription transcription;
     private boolean connected;
 
-    public WebSocketHandler(AudioPlayer audioPlayer) {
+    public WebSocketHandler(AudioPlayer audioPlayer, Transcription transcription) {
         this.audioPlayer = audioPlayer;
+        this.transcription = transcription;
         connected = false;
     }
 
@@ -93,15 +97,45 @@ public class WebSocketHandler {
                     + "\"session\": {"
                     +       "\"instructions\": \"%s\","
                     +       "\"voice\": \"%s\","
-                    +       "\"turn_detection\": {\n" +
-                                    "\"type\": \"server_vad\",\n" +
-                                    "\"threshold\": 0.5,\n" +
-                                    "\"prefix_padding_ms\": 300,\n" +
-                                    "\"silence_duration_ms\": 500,\n" +
-                                    "\"create_response\": true\n" +
+                    +       "\"input_audio_transcription\": {" +
+                                    "\"model\": \"whisper-1\"" +
                             "},"
+                    +       "\"turn_detection\": {" +
+                                    "\"type\": \"server_vad\"," +
+                                    "\"threshold\": 0.5," +
+                                    "\"prefix_padding_ms\": 200," +
+                                    "\"silence_duration_ms\": 400," +
+                                    "\"create_response\": true" +
+                            "}"
                     + "}"
-                    ,sessionID, prompt, voice);
+                    + "}",sessionID, prompt, voice);
+            webSocket.send(jsonPayload);
+        } else {
+            Log.e("Debug","WebSocket is not connected.");
+        }
+    }
+
+    public void userInfoUpdate() {
+        if (webSocket != null && sessionID != null) {
+            String jsonPayload = String.format("{"
+                    + "\"event_id\": \"event_001\","
+                    + "\"type\": \"conversation.item.create\","
+                    + "\"previous_item_id\": null,"
+                    + "\"item\": {" +
+                            "\"id\": \"msg_001\"," +
+                            "\"type\": \"message\"," +
+                            "\"role\": \"user\"," +
+                            "\"content\": ["+
+                                    "{" +
+                                    "\"type\": \"input_text\"," +
+                                    "\"text\": \"%s\"" +
+                                    "}" +
+                            "]" +
+                    "}"
+                    + "}", "Please remember the number 66");
+            webSocket.send(jsonPayload);
+        } else {
+            Log.e("Debug","WebSocket is not connected.");
         }
     }
 
@@ -114,6 +148,7 @@ public class WebSocketHandler {
             case "session.created":
                 setSessionID(text);
                 sessionUpdate();
+                userInfoUpdate();
                 break;
             case "response.audio.delta":
                 encodedAudio = getAudioData(text);
@@ -122,6 +157,12 @@ public class WebSocketHandler {
                 break;
             case "input_audio_buffer.speech_started":
                 audioPlayer.clearAudioData();
+                break;
+            case "conversation.item.input_audio_transcription.completed":
+                transcription.addTranscription(String.format("User: %s", getTranscriptData(text)));
+                break;
+            case "response.audio_transcript.done":
+                transcription.addTranscription(String.format("Assistant: %s", getTranscriptData(text)));
                 break;
             default:
                 break;
@@ -140,7 +181,18 @@ public class WebSocketHandler {
         Log.e("Debug", sessionID);
     }
 
+    private String getTranscriptData(String text) {
+        int startIndex = text.lastIndexOf("transcript") + 13;
+        int endIndex = text.indexOf("}", startIndex) - 1;
+
+        return text.substring(startIndex, endIndex);
+    }
+
     public boolean isConnected() {
         return connected;
+    }
+
+    public void stop() {
+        webSocket.close(1000, null);
     }
 }

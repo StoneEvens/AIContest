@@ -15,11 +15,13 @@ import android.view.View;
 import android.widget.Button;
 
 import com.AIExpense.elementtest.RealtimeSession.Realtime;
+import com.AIExpense.elementtest.Transcription.Transcription;
 import com.AIExpense.elementtest.old.Speaker;
 
 public class MainActivity extends AppCompatActivity {
-    Button startButton, endButton;
-    Realtime realtime;
+    private Button startButton, endButton;
+    private Realtime realtime;
+    private boolean active;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,29 +39,38 @@ public class MainActivity extends AppCompatActivity {
 
         realtime = new Realtime(this.getApplicationContext());
 
+        active = false;
 
         // Adding OnClickListener
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
+                if (!active) {
+                    active = true;
+
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    realtime.startStreaming();
                 }
-                realtime.startStreaming();
             }
         });
 
         endButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                realtime.stopStreaming();
+                if (active) {
+                    realtime.stopStreaming();
+
+                    active = false;
+                }
             }
         });
     }
