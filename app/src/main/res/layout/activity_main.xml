@@ -6,39 +6,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_margin="30dp"
+    android:layout_margin="15dp"
+    android:layout_gravity="center"
     android:id="@+id/main"
     tools:context=".MainActivity">
 
-    <!--To add text in the app-->
-
-    <!--when you press this button it will
-        convert text into speech-->
-
-    <!--To display the name of GeeksForGeeks -->
-
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp">
 
         <Button
-            android:id="@+id/StartButon"
+            android:id="@+id/StartButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
             android:layout_gravity="center"
-            android:layout_marginStart="0dp"
-            android:text="Start Conversation" />
+            android:text="Start" />
+
+        <Button
+            android:id="@+id/PauseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:text="Pause" />
 
         <Button
             android:id="@+id/EndButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_gravity="center"
-            android:layout_marginEnd="10dp"
-            android:text="End Conversation" />
-    </RelativeLayout>
+            android:layout_toStartOf="@+id/PauseButton"
+            android:layout_toEndOf="@+id/StartButton"
+            android:text="End" />
+    </LinearLayout>
 
 </RelativeLayout>

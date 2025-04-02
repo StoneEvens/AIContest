@@ -1,11 +1,11 @@
-package com.AIExpense.elementtest.RealtimeSession;
+package com.AIExpense.elementtest.Call;
 
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.AIExpense.elementtest.Transcription.Transcription;
+import com.AIExpense.elementtest.Record.Transcription;
+import com.AIExpense.elementtest.Record.UserInfoHandler;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,11 +24,13 @@ public class WebSocketHandler {
     private String encodedAudio;
     private final AudioPlayer audioPlayer;
     private final Transcription transcription;
+    private final Context context;
     private boolean connected;
 
-    public WebSocketHandler(AudioPlayer audioPlayer, Transcription transcription) {
+    public WebSocketHandler(AudioPlayer audioPlayer, Transcription transcription, Context context) {
         this.audioPlayer = audioPlayer;
         this.transcription = transcription;
+        this.context = context;
         connected = false;
     }
 
@@ -117,6 +119,9 @@ public class WebSocketHandler {
 
     public void userInfoUpdate() {
         if (webSocket != null && sessionID != null) {
+            String userInfo = new UserInfoHandler(context).readFromFile();
+            Log.e("Debug", userInfo);
+
             String jsonPayload = String.format("{"
                     + "\"event_id\": \"event_001\","
                     + "\"type\": \"conversation.item.create\","
@@ -132,7 +137,7 @@ public class WebSocketHandler {
                                     "}" +
                             "]" +
                     "}"
-                    + "}", "Please remember the number 66");
+                    + "}", String.format("Here are some information about the user: %s", userInfo));
             webSocket.send(jsonPayload);
         } else {
             Log.e("Debug","WebSocket is not connected.");
@@ -159,10 +164,10 @@ public class WebSocketHandler {
                 audioPlayer.clearAudioData();
                 break;
             case "conversation.item.input_audio_transcription.completed":
-                transcription.addTranscription(String.format("User: %s", getTranscriptData(text)));
+                transcription.addTranscription(String.format("User: %s; ", getTranscriptData(text)));
                 break;
             case "response.audio_transcript.done":
-                transcription.addTranscription(String.format("Assistant: %s", getTranscriptData(text)));
+                transcription.addTranscription(String.format("Assistant: %s; ", getTranscriptData(text)));
                 break;
             default:
                 break;

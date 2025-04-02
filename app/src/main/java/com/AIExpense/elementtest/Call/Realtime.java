@@ -1,4 +1,4 @@
-package com.AIExpense.elementtest.RealtimeSession;
+package com.AIExpense.elementtest.Call;
 
 import android.Manifest;
 import android.content.Context;
@@ -8,10 +8,9 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresPermission;
 
-import com.AIExpense.elementtest.Transcription.Transcription;
-import com.AIExpense.elementtest.Transcription.UserInfoHandler;
-
-import java.util.Queue;
+import com.AIExpense.elementtest.Record.Analyzer;
+import com.AIExpense.elementtest.Record.PostCallHandler;
+import com.AIExpense.elementtest.Record.Transcription;
 
 public class Realtime {
     private final AudioStreamer audioStreamer;
@@ -21,18 +20,15 @@ public class Realtime {
     private final Transcription transcription;
 
     public Realtime(Context context) {
+        this.context = context;
         transcription = new Transcription();
         audioPlayer = new AudioPlayer();
-        webSocketHandler = new WebSocketHandler(audioPlayer, transcription);
+        webSocketHandler = new WebSocketHandler(audioPlayer, transcription, context);
         audioStreamer = new AudioStreamer(webSocketHandler, audioPlayer);
-        this.context = context;
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startStreaming() {
-        String s = new UserInfoHandler(context).readFromFile();
-        Log.e("Debug",s);
-
         // Connect to the WebSocket
         new Thread(new Runnable() {
             @RequiresPermission(Manifest.permission.RECORD_AUDIO)
@@ -62,20 +58,30 @@ public class Realtime {
         }).start();
     }
 
+    public void pauseStreaming() {
+        // Pause recording and close the WebSocket connection
+        audioStreamer.stopRecording();
+        audioPlayer.close();
+
+        Toast.makeText(context, "Call Paused", Toast.LENGTH_SHORT).show();
+    }
+
     public void stopStreaming() {
         // Stop recording and close the WebSocket connection
         audioStreamer.stopRecording();
         audioPlayer.close();
 
-        Queue<String> dataQueue = transcription.getTranscriptions();
-        StringBuilder transcription = new StringBuilder();
 
-        while (!dataQueue.isEmpty()) {
-            transcription.append(dataQueue.poll()).append("\n");
-        }
+        new Thread(new PostCallHandler(transcription, context)).start();
 
-        UserInfoHandler userInfoHandler = new UserInfoHandler(context);
-        userInfoHandler.writeToFile(transcription.toString());
+//        Queue<String> dataQueue = transcription.getTranscriptions();
+//        StringBuilder transcription = new StringBuilder();
+//
+//        while (!dataQueue.isEmpty()) {
+//            transcription.append(dataQueue.poll()).append("\n");
+//        }
+
+        //new UserInfoHandler(context).writeToFile(transcription.toString());
 
         Toast.makeText(context, "Call Stopped", Toast.LENGTH_SHORT).show();
     }

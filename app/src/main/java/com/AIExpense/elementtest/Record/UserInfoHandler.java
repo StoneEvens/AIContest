@@ -1,4 +1,4 @@
-package com.AIExpense.elementtest.Transcription;
+package com.AIExpense.elementtest.Record;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -43,5 +43,14 @@ public class UserInfoHandler {
             e.printStackTrace();
         }
         return stringBuilder.toString();
+    }
+
+    public void checkFile() {
+        try {
+            FileInputStream fis = context.openFileInput(fileName);
+            fis.close();
+        } catch (IOException e) {
+            writeToFile("");
+        }
     }
 }

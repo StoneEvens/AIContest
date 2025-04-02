@@ -1,7 +1,6 @@
 package com.AIExpense.elementtest;
 
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -14,12 +13,11 @@ import androidx.core.view.WindowInsetsCompat;
 import android.view.View;
 import android.widget.Button;
 
-import com.AIExpense.elementtest.RealtimeSession.Realtime;
-import com.AIExpense.elementtest.Transcription.Transcription;
-import com.AIExpense.elementtest.old.Speaker;
+import com.AIExpense.elementtest.Call.Realtime;
+import com.AIExpense.elementtest.Record.UserInfoHandler;
 
 public class MainActivity extends AppCompatActivity {
-    private Button startButton, endButton;
+    private Button startButton, pauseButton, endButton;
     private Realtime realtime;
     private boolean active;
 
@@ -34,7 +32,10 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        startButton = findViewById(R.id.StartButon);
+        new UserInfoHandler(this.getApplicationContext()).checkFile();
+
+        startButton = findViewById(R.id.StartButton);
+        pauseButton = findViewById(R.id.PauseButton);
         endButton = findViewById(R.id.EndButton);
 
         realtime = new Realtime(this.getApplicationContext());
@@ -59,6 +60,17 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
                     realtime.startStreaming();
+                }
+            }
+        });
+
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (active) {
+                    realtime.pauseStreaming();
+
+                    active = false;
                 }
             }
         });
