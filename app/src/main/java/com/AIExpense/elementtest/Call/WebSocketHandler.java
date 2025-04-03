@@ -110,7 +110,7 @@ public class WebSocketHandler {
                                     "\"create_response\": true" +
                             "}"
                     + "}"
-                    + "}",sessionID, prompt, voice);
+                    + "}", sessionID, prompt, voice);
             webSocket.send(jsonPayload);
         } else {
             Log.e("Debug","WebSocket is not connected.");
