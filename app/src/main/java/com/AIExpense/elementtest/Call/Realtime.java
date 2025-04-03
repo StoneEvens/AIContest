@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresPermission;
 
-import com.AIExpense.elementtest.Record.Analyzer;
 import com.AIExpense.elementtest.Record.PostCallHandler;
 import com.AIExpense.elementtest.Record.Transcription;
 
@@ -73,13 +72,6 @@ public class Realtime {
 
 
         new Thread(new PostCallHandler(transcription, context)).start();
-
-//        Queue<String> dataQueue = transcription.getTranscriptions();
-//        StringBuilder transcription = new StringBuilder();
-//
-//        while (!dataQueue.isEmpty()) {
-//            transcription.append(dataQueue.poll()).append("\n");
-//        }
 
         //new UserInfoHandler(context).writeToFile(transcription.toString());
 

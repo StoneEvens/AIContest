@@ -52,7 +52,7 @@ public class WebSocketHandler {
 
             @Override
             public void onMessage(WebSocket webSocket, String text) {
-                Log.i("Debug","Received message: " + text);
+                //Log.i("Debug","Received message: " + text);
                 filterMessage(text);
                 // Process and play the received audio
             }
@@ -139,6 +139,34 @@ public class WebSocketHandler {
                     "}"
                     + "}", String.format("Here are some information about the user: %s", userInfo));
             webSocket.send(jsonPayload);
+
+            Log.e("Debug", "User Info Updated");
+        } else {
+            Log.e("Debug","WebSocket is not connected.");
+        }
+    }
+
+    public void timeUpdate() {
+        if (webSocket != null && sessionID != null) {
+            String jsonPayload = String.format("{"
+                    + "\"event_id\": \"event_001\","
+                    + "\"type\": \"conversation.item.create\","
+                    + "\"previous_item_id\": null,"
+                    + "\"item\": {" +
+                    "\"id\": \"msg_002\"," +
+                    "\"type\": \"message\"," +
+                    "\"role\": \"user\"," +
+                    "\"content\": ["+
+                    "{" +
+                    "\"type\": \"input_text\"," +
+                    "\"text\": \"%s\"" +
+                    "}" +
+                    "]" +
+                    "}"
+                    + "}", String.format("Today's date is: %s", new java.util.Date()));
+            webSocket.send(jsonPayload);
+
+            Log.e("Debug", "Time Updated");
         } else {
             Log.e("Debug","WebSocket is not connected.");
         }

@@ -1,9 +1,13 @@
 package com.AIExpense.elementtest.Record;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.AIExpense.elementtest.Analyze.ExpenseAnalyzer;
+import com.AIExpense.elementtest.Analyze.HabitAnalyzer;
 
 public class PostCallHandler implements Runnable {
     private final Transcription transcription;
@@ -18,31 +22,32 @@ public class PostCallHandler implements Runnable {
     public void run() {
         try {
             Looper.prepare();
-            Analyzer expenseAnalyzer = new Analyzer(transcription.getTranscriptions(), context);
-            Analyzer habitAnalyzer = new Analyzer(transcription.getTranscriptions(), context);
+            ExpenseAnalyzer expenseAnalyzer = new ExpenseAnalyzer(transcription.getTranscriptions(), context);
+            HabitAnalyzer habitAnalyzer = new HabitAnalyzer(transcription.getTranscriptions(), context);
 
-            expenseAnalyzer.analyzeExpense();
-            habitAnalyzer.analyzeHabit();
+            expenseAnalyzer.start();
+            habitAnalyzer.start();
 
             while (expenseAnalyzer.isOperating() || habitAnalyzer.isOperating()) {
                 try {
                     Log.e("Debug", "Operating...");
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    return;
                 }
             }
 
-            if (!expenseAnalyzer.isDone() || !habitAnalyzer.isDone()) {
+            if (expenseAnalyzer.isDone() && habitAnalyzer.isDone()) {
                 Toast.makeText(context, "Record Saved", Toast.LENGTH_SHORT).show();
-                return;
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    new TestDownload().copyFileToDownloads(context);
+                }
+            } else {
+                Toast.makeText(context, "Error Saving Record", Toast.LENGTH_SHORT).show();
             }
 
-            Toast.makeText(context, "Error Saving Record", Toast.LENGTH_SHORT).show();
-
             Looper.loop();
-
-            new TestDownload().copyFileToDownloads(context);
         } catch (Exception e) {
             e.printStackTrace();
         }
