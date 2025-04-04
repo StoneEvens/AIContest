@@ -10,6 +10,8 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ChatModel;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 
+import java.util.Date;
+
 public class APIAnalyzer {
     private static final String apiKey = "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";
     private final Context context;
@@ -52,7 +54,7 @@ public class APIAnalyzer {
                 ChatCompletionCreateParams createParams = ChatCompletionCreateParams.builder()
                         .model(ChatModel.GPT_4O)
                         .maxCompletionTokens(2048)
-                        //.addDeveloperMessage("Make sure you mention Stainless!")
+                        .addDeveloperMessage(String.format("Today's dat is: %s", new Date()))
                         .addUserMessage(userInput)
                         .build();
 

@@ -5,9 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import java.sql.Time;
 import java.util.ArrayList;
 
 public class DBHandler extends SQLiteOpenHelper {
@@ -21,7 +23,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query = String.format("CREATE TABLE %s (ID INT PRIMARY KEY NOT NULL, TIME DATE NOT NULL, CATEGORY TEXT NOT NULL, NAME TEXT NOT NULL, COST INT NOT NULL)", TABLE_NAME);
+        String query = String.format("CREATE TABLE %s (ID INTEGER PRIMARY KEY AUTOINCREMENT, TIME DATE, CATEGORY TEXT, NAME TEXT, COST INT)", TABLE_NAME);
         db.execSQL(query);
     }
 
@@ -43,10 +45,10 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<String[]> readExpense(String category, String startTime, String endTime) {
+    public ArrayList<String[]> readExpense(String category, String month) {
         ArrayList<String[]> expenseList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = String.format("SELECT TIME, NAME, COST FROM %s WHERE CATEGORY = '%s' AND TIME >= '%s' AND TIME <= '%s'", TABLE_NAME, category, startTime, endTime);
+        String query = String.format("SELECT TIME, NAME, COST FROM '%s' WHERE CATEGORY = '%s' AND strftime('%%m', TIME) = '%s'", TABLE_NAME, category, month);
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
@@ -55,7 +57,11 @@ public class DBHandler extends SQLiteOpenHelper {
                 expense[0] = cursor.getString(0);
                 expense[1] = cursor.getString(1);
                 expense[2] = cursor.getString(2);
+
+                expenseList.add(expense);
             } while (cursor.moveToNext());
+        } else {
+            Log.e("Debug", "No data found");
         }
 
         cursor.close();

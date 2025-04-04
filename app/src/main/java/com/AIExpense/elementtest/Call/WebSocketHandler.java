@@ -7,6 +7,8 @@ import android.util.Log;
 import com.AIExpense.elementtest.Record.Transcription;
 import com.AIExpense.elementtest.Record.UserInfoHandler;
 
+import java.util.Date;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
@@ -163,7 +165,7 @@ public class WebSocketHandler {
                     "}" +
                     "]" +
                     "}"
-                    + "}", String.format("Today's date is: %s", new java.util.Date()));
+                    + "}", String.format("Today's date is: %s", new Date()));
             webSocket.send(jsonPayload);
 
             Log.e("Debug", "Time Updated");
@@ -182,6 +184,7 @@ public class WebSocketHandler {
                 setSessionID(text);
                 sessionUpdate();
                 userInfoUpdate();
+                timeUpdate();
                 break;
             case "response.audio.delta":
                 encodedAudio = getAudioData(text);

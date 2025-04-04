@@ -25,8 +25,11 @@ public class PostCallHandler implements Runnable {
     public void run() {
         try {
             Looper.prepare();
-            ExpenseAnalyzer expenseAnalyzer = new ExpenseAnalyzer(transcription.getTranscriptions(), context, dataHandler);
-            HabitAnalyzer habitAnalyzer = new HabitAnalyzer(transcription.getTranscriptions(), context, dataHandler);
+            //ExpenseAnalyzer expenseAnalyzer = new ExpenseAnalyzer(transcription.getTranscriptions(), context, dataHandler);
+            //HabitAnalyzer habitAnalyzer = new HabitAnalyzer(transcription.getTranscriptions(), context, dataHandler);
+
+            ExpenseAnalyzer expenseAnalyzer = new ExpenseAnalyzer(transcription.getTestTranscription(), context, dataHandler);
+            HabitAnalyzer habitAnalyzer = new HabitAnalyzer(transcription.getTestTranscription(), context, dataHandler);
 
             expenseAnalyzer.start();
             habitAnalyzer.start();

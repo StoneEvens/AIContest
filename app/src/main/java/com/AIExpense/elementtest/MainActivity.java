@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.AIExpense.elementtest.Call.Realtime;
 import com.AIExpense.elementtest.Database.DBHandler;
@@ -20,9 +21,12 @@ import com.AIExpense.elementtest.Record.PostCallHandler;
 import com.AIExpense.elementtest.Record.Transcription;
 import com.AIExpense.elementtest.Record.UserInfoHandler;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
-    private Button startButton, pauseButton, endButton;
-    private Realtime realtime;
+    private Button startButton, pauseButton, endButton, expenseButton;
+    private TextView expenseText;
+    //private Realtime realtime;
     private DataHandler dataHandler;
     private boolean active;
 
@@ -43,10 +47,14 @@ public class MainActivity extends AppCompatActivity {
         pauseButton = findViewById(R.id.PauseButton);
         endButton = findViewById(R.id.EndButton);
 
-        realtime = new Realtime(this.getApplicationContext());
+        expenseButton = findViewById(R.id.expenseButton);
+        expenseText = findViewById(R.id.expenseText);
+
+        //realtime = new Realtime(this.getApplicationContext());
         dataHandler = new DataHandler(this.getApplicationContext());
 
-        active = false;
+        //false by default
+        active = true;
 
         // Adding OnClickListener
         startButton.setOnClickListener(new View.OnClickListener() {
@@ -65,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                         // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
-                    realtime.startStreaming();
+                    //realtime.startStreaming();
                 }
             }
         });
@@ -74,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (active) {
-                    realtime.pauseStreaming();
+                    //realtime.pauseStreaming();
 
                     active = false;
                 }
@@ -85,11 +93,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (active) {
-                    Transcription transcription = realtime.stopStreaming();
+                    //Transcription transcription = realtime.stopStreaming();
+                    Transcription transcription = new Transcription();
                     new Thread(new PostCallHandler(transcription, getApplicationContext(), dataHandler)).start();
 
                     active = false;
                 }
+            }
+        });
+
+        expenseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<String> dataList = dataHandler.getExpense("Food", "04");
+
+                StringBuilder text = new StringBuilder();
+
+                for (String s: dataList) {
+                    text.append(s + " ");
+                }
+
+                expenseText.setText(text.toString());
             }
         });
     }
