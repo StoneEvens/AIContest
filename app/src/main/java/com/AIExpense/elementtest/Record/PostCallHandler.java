@@ -8,22 +8,25 @@ import android.widget.Toast;
 
 import com.AIExpense.elementtest.Analyze.ExpenseAnalyzer;
 import com.AIExpense.elementtest.Analyze.HabitAnalyzer;
+import com.AIExpense.elementtest.Database.DataHandler;
 
 public class PostCallHandler implements Runnable {
     private final Transcription transcription;
     private final Context context;
+    private final DataHandler dataHandler;
 
-    public PostCallHandler(Transcription transcription, Context context) {
+    public PostCallHandler(Transcription transcription, Context context, DataHandler dataHandler) {
         this.transcription = transcription;
         this.context = context;
+        this.dataHandler = dataHandler;
     }
 
     @Override
     public void run() {
         try {
             Looper.prepare();
-            ExpenseAnalyzer expenseAnalyzer = new ExpenseAnalyzer(transcription.getTranscriptions(), context);
-            HabitAnalyzer habitAnalyzer = new HabitAnalyzer(transcription.getTranscriptions(), context);
+            ExpenseAnalyzer expenseAnalyzer = new ExpenseAnalyzer(transcription.getTranscriptions(), context, dataHandler);
+            HabitAnalyzer habitAnalyzer = new HabitAnalyzer(transcription.getTranscriptions(), context, dataHandler);
 
             expenseAnalyzer.start();
             habitAnalyzer.start();

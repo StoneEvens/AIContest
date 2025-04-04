@@ -14,11 +14,16 @@ import android.view.View;
 import android.widget.Button;
 
 import com.AIExpense.elementtest.Call.Realtime;
+import com.AIExpense.elementtest.Database.DBHandler;
+import com.AIExpense.elementtest.Database.DataHandler;
+import com.AIExpense.elementtest.Record.PostCallHandler;
+import com.AIExpense.elementtest.Record.Transcription;
 import com.AIExpense.elementtest.Record.UserInfoHandler;
 
 public class MainActivity extends AppCompatActivity {
     private Button startButton, pauseButton, endButton;
     private Realtime realtime;
+    private DataHandler dataHandler;
     private boolean active;
 
     @Override
@@ -39,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         endButton = findViewById(R.id.EndButton);
 
         realtime = new Realtime(this.getApplicationContext());
+        dataHandler = new DataHandler(this.getApplicationContext());
 
         active = false;
 
@@ -79,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (active) {
-                    realtime.stopStreaming();
+                    Transcription transcription = realtime.stopStreaming();
+                    new Thread(new PostCallHandler(transcription, getApplicationContext(), dataHandler)).start();
 
                     active = false;
                 }

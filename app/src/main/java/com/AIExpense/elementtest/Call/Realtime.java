@@ -65,16 +65,13 @@ public class Realtime {
         Toast.makeText(context, "Call Paused", Toast.LENGTH_SHORT).show();
     }
 
-    public void stopStreaming() {
+    public Transcription stopStreaming() {
         // Stop recording and close the WebSocket connection
         audioStreamer.stopRecording();
         audioPlayer.close();
 
-
-        new Thread(new PostCallHandler(transcription, context)).start();
-
-        //new UserInfoHandler(context).writeToFile(transcription.toString());
-
         Toast.makeText(context, "Call Stopped", Toast.LENGTH_SHORT).show();
+
+        return transcription;
     }
 }

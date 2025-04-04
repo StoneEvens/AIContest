@@ -1,7 +1,9 @@
 package com.AIExpense.elementtest.Analyze;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.AIExpense.elementtest.Database.DataHandler;
 import com.AIExpense.elementtest.Record.UserInfoHandler;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
@@ -10,15 +12,17 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 
 public class APIAnalyzer {
     private static final String apiKey = "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";
+    private final Context context;
+    private final DataHandler dataHandler;
     private boolean operating = true;
     private boolean done = false;
-    private Context context;
 
-    public APIAnalyzer(Context context) {
+    public APIAnalyzer(Context context, DataHandler dataHandler) {
         this.context = context;
+        this.dataHandler = dataHandler;
     }
 
-    public boolean getDone() {
+    public boolean isDone() {
         return done;
     }
 
@@ -28,11 +32,11 @@ public class APIAnalyzer {
 
     class Task implements Runnable {
         private final String userInput;
-        private final boolean writeFile;
+        private final String operation;
 
-        public Task(String command, boolean writeFile) {
+        public Task(String command, String operation) {
             userInput = command;
-            this.writeFile = writeFile;
+            this.operation = operation;
         }
 
         @Override
@@ -56,17 +60,23 @@ public class APIAnalyzer {
                         .flatMap(choice -> choice.message().content().stream())
                         .forEach(GPTResponse::append);
 
-                int firstChar = GPTResponse.lastIndexOf("content") + 11;
-                int lastChar = GPTResponse.indexOf("\"", firstChar);
-                String information = GPTResponse.substring(firstChar, lastChar);
+                Log.e("Debug", GPTResponse.toString());
 
-                if (writeFile) {
-                    new UserInfoHandler(context).writeToFile(information);
+                switch (operation) {
+                    case "Expense":
+                        dataHandler.saveExpenses(GPTResponse.toString());
+                        break;
+                    case "Habit":
+                        new UserInfoHandler(context).writeToFile(GPTResponse.toString());
+                        break;
+                    default:
+                        return;
                 }
 
                 done = true;
                 operating = false;
             } catch (Exception e) {
+                Log.e("Debug", e.getMessage());
                 operating = false;
             }
         }
