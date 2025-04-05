@@ -26,7 +26,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private Button startButton, pauseButton, endButton, expenseButton;
     private TextView expenseText;
-    //private Realtime realtime;
+    private Realtime realtime;
     private DataHandler dataHandler;
     private boolean active;
 
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         expenseButton = findViewById(R.id.expenseButton);
         expenseText = findViewById(R.id.expenseText);
 
-        //realtime = new Realtime(this.getApplicationContext());
+        realtime = new Realtime(this.getApplicationContext());
         dataHandler = new DataHandler(this.getApplicationContext());
 
         //false by default
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                         // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
-                    //realtime.startStreaming();
+                    realtime.startStreaming();
                 }
             }
         });
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (active) {
-                    //realtime.pauseStreaming();
+                    realtime.pauseStreaming();
 
                     active = false;
                 }
@@ -93,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (active) {
-                    //Transcription transcription = realtime.stopStreaming();
-                    Transcription transcription = new Transcription();
+                    Transcription transcription = realtime.stopStreaming();
+                    //Transcription transcription = new Transcription();
                     new Thread(new PostCallHandler(transcription, getApplicationContext(), dataHandler)).start();
 
                     active = false;
