@@ -1,9 +1,8 @@
-package com.AIExpense.elementtest.RealtimeSession;
+package com.AIExpense.elementtest.Call;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -57,7 +56,8 @@ public class AudioPlayer {
                         audioTrack.play();
                         writeAudioData();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        available = false;
+                        return;
                     } finally {
                         audioTrack.stop();
                         audioTrack.release();
@@ -68,7 +68,8 @@ public class AudioPlayer {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    available = false;
+                    return;
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.AIExpense.elementtest.RealtimeSession;
+package com.AIExpense.elementtest.Call;
 
 import android.Manifest;
 import android.content.Context;
@@ -8,17 +8,22 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresPermission;
 
+import com.AIExpense.elementtest.Record.PostCallHandler;
+import com.AIExpense.elementtest.Record.Transcription;
+
 public class Realtime {
-    private AudioStreamer audioStreamer;
-    private WebSocketHandler webSocketHandler;
-    private AudioPlayer audioPlayer;
-    private Context context;
+    private final AudioStreamer audioStreamer;
+    private final WebSocketHandler webSocketHandler;
+    private final AudioPlayer audioPlayer;
+    private final Context context;
+    private final Transcription transcription;
 
     public Realtime(Context context) {
-        audioPlayer = new AudioPlayer();
-        webSocketHandler = new WebSocketHandler(audioPlayer);
-        audioStreamer = new AudioStreamer(webSocketHandler, audioPlayer);
         this.context = context;
+        transcription = new Transcription();
+        audioPlayer = new AudioPlayer();
+        webSocketHandler = new WebSocketHandler(audioPlayer, transcription, context);
+        audioStreamer = new AudioStreamer(webSocketHandler, audioPlayer);
     }
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
@@ -33,6 +38,7 @@ public class Realtime {
 
                     while (!webSocketHandler.isConnected()) {
                         try {
+                            Log.i("Debug","Waiting for connection...");
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -51,11 +57,21 @@ public class Realtime {
         }).start();
     }
 
-    public void stopStreaming() {
+    public void pauseStreaming() {
+        // Pause recording and close the WebSocket connection
+        audioStreamer.stopRecording();
+        audioPlayer.close();
+
+        Toast.makeText(context, "Call Paused", Toast.LENGTH_SHORT).show();
+    }
+
+    public Transcription stopStreaming() {
         // Stop recording and close the WebSocket connection
         audioStreamer.stopRecording();
         audioPlayer.close();
 
         Toast.makeText(context, "Call Stopped", Toast.LENGTH_SHORT).show();
+
+        return transcription;
     }
 }
